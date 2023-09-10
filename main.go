@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -28,8 +29,12 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/shorten-link", shortenHandler.CreateShortenLink).Methods("POST")
+	r.HandleFunc("/list-key/list", shortenHandler.ListLink).Methods("GET")
 	r.HandleFunc("/{key}", shortenHandler.ResolveShortenLink).Methods("GET")
 
+	// r.Use(CORSMiddleware())
 	fmt.Print("this app running on :8080")
-	http.ListenAndServe(":8080", r)
+	handler := cors.Default().Handler(r)
+
+	http.ListenAndServe(":9000", handler)
 }

@@ -14,6 +14,7 @@ import (
 type RedisShortenLinkHandler interface {
 	CreateShortenLink(w http.ResponseWriter, r *http.Request)
 	ResolveShortenLink(w http.ResponseWriter, r *http.Request)
+	ListLink(w http.ResponseWriter, r *http.Request)
 }
 
 type RedisShortenLinkHandlerImplement struct {
@@ -71,10 +72,18 @@ func (h *RedisShortenLinkHandlerImplement) ResolveShortenLink(w http.ResponseWri
 
 	getOriginalUrl, err := h.redisSvc.GetShortenLink(key)
 	if err != nil {
-		message := "Original url with this key ' " + key + " ' is not found!"
-		utils.ReturnJSON(w, utils.BadRequestResponse(message))
+		utils.ReturnJSON(w, utils.BadRequestResponse(err.Error()))
 		return
 	}
 
 	http.Redirect(w, r, getOriginalUrl, http.StatusMovedPermanently)
+}
+
+func (h *RedisShortenLinkHandlerImplement) ListLink(w http.ResponseWriter, r *http.Request) {
+	response, err := h.redisSvc.ListShortenLink()
+	if err != nil {
+		utils.ReturnJSON(w, utils.BadRequestResponse(err.Error()))
+		return
+	}
+	utils.ReturnJSON(w, utils.SuccessResponse(response))
 }

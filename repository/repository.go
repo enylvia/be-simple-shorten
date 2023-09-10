@@ -10,6 +10,7 @@ import (
 type RedisRepository interface {
 	Set(key, val string) (string, error)
 	Get(key string) (string, error)
+	List() ([]string, error)
 }
 
 type RedisRepositoryImplement struct {
@@ -35,4 +36,12 @@ func (r *RedisRepositoryImplement) Get(key string) (string, error) {
 		return "data with this " + key + "is not found", err
 	}
 	return val, nil
+}
+
+func (r *RedisRepositoryImplement) List() ([]string, error) {
+	keys, err := r.rd.Keys(context.Background(), "*").Result()
+	if err != nil {
+		return keys, err
+	}
+	return keys, nil
 }

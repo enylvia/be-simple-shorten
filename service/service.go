@@ -1,13 +1,16 @@
 package service
 
 import (
+	"errors"
 	"go-shorten-link/repository"
 	"go-shorten-link/utils"
+	"log"
 )
 
 type ServiceRedis interface {
 	SetShortenLink(url string) (string, error)
 	GetShortenLink(key string) (string, error)
+	ListShortenLink() ([]string, error)
 }
 
 type ServiceRedisImplement struct {
@@ -31,7 +34,17 @@ func (svc ServiceRedisImplement) SetShortenLink(url string) (string, error) {
 func (svc ServiceRedisImplement) GetShortenLink(key string) (string, error) {
 	val, err := svc.redisRepository.Get(key)
 	if err != nil {
-		return "value with this key ' " + key + " ' is not found", err
+		return "value with this key ' " + key + " ' is not found", errors.New("error")
 	}
 	return val, nil
+}
+
+func (svc ServiceRedisImplement) ListShortenLink() ([]string, error) {
+	result, err := svc.redisRepository.List()
+	log.Println(result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+
 }
